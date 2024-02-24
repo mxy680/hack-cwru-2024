@@ -1,0 +1,53 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Roboto:wght@400&display=swap');
+
+@keyframes gradientBackground {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+.bg-moving-gradient {
+    background: linear-gradient(270deg, #0f0c29, #302b63, #24243e);
+    background-size: 600% 600%;
+    animation: gradientBackground 15s ease infinite;
+}
+
+textarea,
+button {
+    font-size: 1.25rem;
+    /* Larger font size for better readability */
+}
+
+
+/* Apply custom font and additional styles to the title */
+h1 {
+    font-family: 'Montserrat', sans-serif;
+    /* This is a popular choice for bold and modern titles */
+    font-size: 7rem;
+    /* Adjusted size; ensure it matches your component if you changed it */
+    background: -webkit-linear-gradient(45deg, #6dd5ed, #2193b0);
+    /* Gradient effect */
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
+    /* Subtle shadow for depth */
+    margin-bottom: 1rem;
+    /* Adjusted spacing */
+}
+
+/* You can also adjust the paragraph (p) font for consistency */
+p {
+    font-family: 'Roboto', sans-serif;
+    font-size: 1.1rem;
+    /* Slightly larger for readability */
+    color: #ccc;
+    /* Adjusted color for better contrast */
+}
