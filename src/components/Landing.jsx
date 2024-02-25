@@ -13,14 +13,11 @@ const openai = new OpenAI({
 const randomPrompts = [
     'A young woman with long, curly blonde hair, standing 5\'7" tall and weighing about 130lbs, smiles brightly.',
     "An elderly Indian man, with a thick white beard and short, straight hair, his height approximately 5'9\".",
-    "A muscular black teenage boy, with a shaved head, stands 6'2\" tall and looks ready for a basketball game.",
     "A petite Asian woman in her 30s, with sleek, shoulder-length black hair.",
     "A chubby white boy, about 10 years old, with messy brown hair and a round face.",
-    "A tall, heavyset white man with a full beard and short, curly red hair.",
-    "A slender African American woman with tightly coiled hair styled in a short afro.",
+    "A tall white man with a full beard and short, curly red hair.",
     "An athletic Hispanic man, clean-shaven, with short, straight dark hair.",
     "A middle-aged white woman with long, straight gray hair tied in a bun, wearing glasses.",
-    "A young, skinny Asian boy with bowl-cut black hair."
 ];
 
 const Landing = () => {
