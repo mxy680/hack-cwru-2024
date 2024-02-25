@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const Main = () => {
-    const location = useLocation();   
+    const location = useLocation();
+    const navigate = useNavigate();
 
     const [weight, setWeight] = useState('');
     const [height, setHeight] = useState('');
@@ -12,60 +13,40 @@ const Main = () => {
     const [hair, setHair] = useState('');
     const [facialHair, setFacialHair] = useState('');
     const [faceShape, setFaceShape] = useState('');
-    const [wrinkles, setWrinkles] = useState('');
-    const [freckles, setFreckles] = useState('');
-    const [acne, setAcne] = useState('');
-    const [build, setBuild] = useState('');
+    const [customField, setCustomField] = useState('');
 
-    const generate_image = async () => {
+    const [image, setImage] = useState('');
+
+    const generateImage = async (event) => {
+        if (event) {
+            event.preventDefault();
+        }
 
         // Creating prompt
         let prompt = `photo of mugshot`
-        if (weight) prompt += `, weight: ${weight}`;
-        if (height) prompt += `, height: ${height}`;
-        if (gender) prompt += `, gender: ${gender}`;
-        if (age) prompt += `, age: ${age}`;
-        if (race) prompt += `, race: ${race}`;
-        if (hair) prompt += `, hair: ${hair}`;
-        if (facialHair) prompt += `, facial hair: ${facialHair}`;
-        if (faceShape) prompt += `, face shape: ${faceShape}`;
-        if (wrinkles) prompt += `, wrinkles: ${wrinkles}`;
-        if (freckles) prompt += `, freckles: ${freckles}`;
-        if (acne) prompt += `, acne: ${acne}`;
-        if (build) prompt += `, build: ${build}`;
+        if (location.state.age) prompt += `, age: ${location.state.age}`;
+        if (location.state.gender) prompt += `, gender: ${location.state.gender}`;
+        if (location.state.race) prompt += `, race: ${location.state.race}`;
+        if (location.state.weight) prompt += `, weight: ${location.state.weight} lbs`;
+        if (location.state.height) prompt += `, height: ${location.state.height} inches tall`;
+        if (location.state.hair) prompt += `, hair: ${location.state.hair}`;
+        if (location.state.facialHair) prompt += `, facial hair: ${location.state.facialHair}`;
+        if (location.state.faceShape) prompt += `, face shape: ${location.state.faceShape}`;
 
-        const myHeaders = new Headers();
-        myHeaders.append("Authorization", `Token ${process.env.REACT_APP_IMAGE_GENERATOR_TOKEN}`);
-        myHeaders.append("Content-Type", "application/json");
+        console.log('Prompt: ', prompt)
 
-        const raw = JSON.stringify({
-            "version": "479633443fc6588e1e8ae764b79cdb3702d0c196e0cb2de6db39ce577383be77",
-            "input": {
-                "seed": 34694,
-                "width": 1024,
-                "height": 1024,
-                "prompt": "photo of mugshot,  weight\\: 200,\\n    \\height\\: 116,\\n    \\gender\\: \\male\\,\\n    \\age\\: null,\\n    \\race\\: \\white\\,\\n    \\hair\\: \\black\\,\\n    \\facial_hair\\: null,\\n    \\face_shape\\: null,\\n    \\freckles\\: \\some\\,\\n    \\acne\\: null,\\n\\face_type\\: \\",
-                "scheduler": "LCM",
-                "num_outputs": 1,
-                "guidance_scale": 2,
-                "apply_watermark": true,
-                "negative_prompt": "(worst quality, low quality, illustration, 3d, 2d, painting, cartoons, sketch), open mouth",
-                "prompt_strength": 0.8,
-                "num_inference_steps": 6
-            }
+        const response = await fetch(process.env.REACT_APP_IMAGE_GENERATOR_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'accept': 'application/json',
+            },
+            body: JSON.stringify({ prompt: prompt, negative_prompt: 'disfigured, ugly, bad, immature, cartoon, anime, 3d, painting, text, black text bar' }),
         });
 
-        const requestOptions = {
-            method: "POST",
-            headers: myHeaders,
-            body: raw
-        };
-
-        fetch(process.env.REACT_APP_IMAGE_GENERATOR_URL, requestOptions)
-            .then((response) => response.text())
-            .then((result) => console.log(result))
-            .catch((error) => console.error(error));
-
+        const data = await response.json();
+        setImage(data[0]);
+        console.log('image set')
     }
 
     useEffect(() => {
@@ -78,86 +59,85 @@ const Main = () => {
             setHair(location.state.hair || '');
             setFacialHair(location.state.facialHair || '');
             setFaceShape(location.state.faceShape || '');
-            setWrinkles(location.state.wrinkles || '');
-            setFreckles(location.state.freckles || '');
-            setAcne(location.state.acne || '');
-            setBuild(location.state.build || '');
         }
 
-        generate_image();
-
+        //generateImage();
     }, [location.state]);
 
     return (
-        <div className="min-h-screen flex justify-center items-center bg-gradient-to-br from-gray-700 via-gray-900 to-black">
-            <div className="flex w-full">
-                <div className="w-1/2 bg-gray-800 p-8 rounded-lg mr-4 overflow-y-auto max-h-full">
+        <div className="min-h-screen flex justify-center items-center bg-gray-900">
+            <div className="flex w-full m-8 mt-4">
+                <div className="w-1/2 bg-gray-800 p-8 rounded-lg mr-4 overflow-y-auto max-h-full shadow-xl">
                     <form className="space-y-6">
-                        <div className="grid grid-cols-2 gap-4">
+                        <h1 className="text-3xl font-bold text-white mb-4">Face Attributes Generator</h1> {/* Title */}
+                        <h2 className="text-lg text-gray-300 mb-8">Please fill in the following details:</h2> {/* Subtitle */}
+                        <div className="grid grid-cols-2 gap-8">
                             <div>
-                                <label className="block text-lg text-gray-300">
-                                    <span>Weight:</span>
-                                    <input type="text" value={weight} onChange={(e) => setWeight(e.target.value)} className="mt-1 block w-full rounded-md border-gray-700 bg-gray-600 text-gray-300 shadow-sm focus:border-purple-500 focus:ring focus:ring-purple-500 focus:ring-opacity-50 h-12 text-lg" />
-                                </label>
-                                <label className="block text-lg text-gray-300">
-                                    <span>Height:</span>
-                                    <input type="text" value={height} onChange={(e) => setHeight(e.target.value)} className="mt-1 block w-full rounded-md border-gray-700 bg-gray-600 text-gray-300 shadow-sm focus:border-purple-500 focus:ring focus:ring-purple-500 focus:ring-opacity-50 h-12 text-lg" />
-                                </label>
-                                <label className="block text-lg text-gray-300">
-                                    <span>Gender:</span>
-                                    <input type="text" value={gender} onChange={(e) => setGender(e.target.value)} className="mt-1 block w-full rounded-md border-gray-700 bg-gray-600 text-gray-300 shadow-sm focus:border-purple-500 focus:ring focus:ring-purple-500 focus:ring-opacity-50 h-12 text-lg" />
-                                </label>
-                                <label className="block text-lg text-gray-300">
-                                    <span>Age:</span>
-                                    <input type="text" value={age} onChange={(e) => setAge(e.target.value)} className="mt-1 block w-full rounded-md border-gray-700 bg-gray-600 text-gray-300 shadow-sm focus:border-purple-500 focus:ring focus:ring-purple-500 focus:ring-opacity-50 h-12 text-lg" />
-                                </label>
-                                <label className="block text-lg text-gray-300">
-                                    <span>Race:</span>
-                                    <input type="text" value={race} onChange={(e) => setRace(e.target.value)} className="mt-1 block w-full rounded-md border-gray-700 bg-gray-600 text-gray-300 shadow-sm focus:border-purple-500 focus:ring focus:ring-purple-500 focus:ring-opacity-50 h-12 text-lg" />
-                                </label>
-                                <label className="block text-lg text-gray-300">
-                                    <span>Hair:</span>
-                                    <input type="text" value={hair} onChange={(e) => setHair(e.target.value)} className="mt-1 block w-full rounded-md border-gray-700 bg-gray-600 text-gray-300 shadow-sm focus:border-purple-500 focus:ring focus:ring-purple-500 focus:ring-opacity-50 h-12 text-lg" />
-                                </label>
+                                <InputField label="Weight" value={weight} onChange={setWeight} />
+                                <InputField label="Height" value={height} onChange={setHeight} />
+                                <InputField label="Gender" value={gender} onChange={setGender} />
+                                <InputField label="Age" value={age} onChange={setAge} />
                             </div>
                             <div>
-                                <label className="block text-lg text-gray-300">
-                                    <span>Facial Hair:</span>
-                                    <input type="text" value={facialHair} onChange={(e) => setFacialHair(e.target.value)} className="mt-1 block w-full rounded-md border-gray-700 bg-gray-600 text-gray-300 shadow-sm focus:border-purple-500 focus:ring focus:ring-purple-500 focus:ring-opacity-50 h-12 text-lg" />
-                                </label>
-                                <label className="block text-lg text-gray-300">
-                                    <span>Face Shape:</span>
-                                    <input type="text" value={faceShape} onChange={(e) => setFaceShape(e.target.value)} className="mt-1 block w-full rounded-md border-gray-700 bg-gray-600 text-gray-300 shadow-sm focus:border-purple-500 focus:ring focus:ring-purple-500 focus:ring-opacity-50 h-12 text-lg" />
-                                </label>
-                                <label className="block text-lg text-gray-300">
-                                    <span>Wrinkles:</span>
-                                    <input type="text" value={wrinkles} onChange={(e) => setWrinkles(e.target.value)} className="mt-1 block w-full rounded-md border-gray-700 bg-gray-600 text-gray-300 shadow-sm focus:border-purple-500 focus:ring focus:ring-purple-500 focus:ring-opacity-50 h-12 text-lg" />
-                                </label>
-                                <label className="block text-lg text-gray-300">
-                                    <span>Freckles:</span>
-                                    <input type="text" value={freckles} onChange={(e) => setFreckles(e.target.value)} className="mt-1 block w-full rounded-md border-gray-700 bg-gray-600 text-gray-300 shadow-sm focus:border-purple-500 focus:ring focus:ring-purple-500 focus:ring-opacity-50 h-12 text-lg" />
-                                </label>
-                                <label className="block text-lg text-gray-300">
-                                    <span>Acne:</span>
-                                    <input type="text" value={acne} onChange={(e) => setAcne(e.target.value)} className="mt-1 block w-full rounded-md border-gray-700 bg-gray-600 text-gray-300 shadow-sm focus:border-purple-500 focus:ring focus:ring-purple-500 focus:ring-opacity-50 h-12 text-lg" />
-                                </label>
-                                <label className="block text-lg text-gray-300">
-                                    <span>Build:</span>
-                                    <input type="text" value={build} onChange={(e) => setBuild(e.target.value)} className="mt-1 block w-full rounded-md border-gray-700 bg-gray-600 text-gray-300 shadow-sm focus:border-purple-500 focus:ring focus:ring-purple-500 focus:ring-opacity-50 h-12 text-lg" />
-                                </label>
+                                <InputField label="Race" value={race} onChange={setRace} />
+                                <InputField label="Hair" value={hair} onChange={setHair} />
+                                <InputField label="Facial Hair" value={facialHair} onChange={setFacialHair} />
+                                <InputField label="Face Shape" value={faceShape} onChange={setFaceShape} />
                             </div>
                         </div>
-                        <button type="submit" className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline block mx-auto">
+                        <label className="block text-lg text-gray-300">
+                            <CustomInputField label="Custom Field" value={customField} onChange={setCustomField} />
+                        </label>
+                        <button type="submit" onClick={generateImage} className="bg-blue-700 hover:bg-blue-500 text-white font-bold py-3 px-6 rounded focus:outline-none focus:shadow-outline block mx-auto transition duration-300 ease-in-out">
                             Submit
                         </button>
+                        <div className="mt-8 text-center">
+                            <button
+                                className="text-sm text-blue-700 underline focus:outline-none transition duration-300 ease-in-out"
+                                onClick={() => {
+                                    // Navigate to home route
+                                    navigate('/');
+                                }}
+                            >
+                                Return Home
+                            </button>
+                        </div>
                     </form>
                 </div>
-                <div className="w-1/2 bg-gray-800 p-8 rounded-lg opacity-75">
-                    <img src='/images/pic.png' alt="Selected" className="max-w-full h-auto" />
+                <div className="w-1/2 bg-gray-800 p-8 rounded-lg opacity-90 shadow-lg">
+                    <img src={image ? image : '/images/pic.png'} alt="Selected" className="max-w-full h-auto rounded-lg" />
                 </div>
             </div>
         </div>
     );
 };
+
+const InputField = ({ label, value, onChange }) => (
+    <div className='mb-4'>
+        <label className="block text-lg text-gray-300 mb-1">{label}:</label>
+        <div className="relative">
+            <input
+                type="text"
+                value={value}
+                onChange={(e) => onChange(e.target.value)}
+                className="appearance-none w-full px-4 py-2 border-2 border-gray-500 rounded-lg bg-gray-800 text-gray-300 focus:outline-none focus:border-purple-500 transition duration-300 ease-in-out"
+            />
+        </div>
+    </div>
+);
+
+const CustomInputField = ({ label, value, onChange }) => (
+    <div>
+        <label className="block text-lg text-gray-300 mb-1">{label}:</label>
+        <div className="relative">
+            <input
+                type="text"
+                value={value}
+                onChange={(e) => onChange(e.target.value)}
+                className="appearance-none w-full px-4 py-2 border-2 border-gray-500 rounded-lg bg-gray-800 text-gray-300 focus:outline-none focus:border-purple-500 transition duration-300 ease-in-out"
+            />
+        </div>
+    </div>
+);
 
 export default Main;

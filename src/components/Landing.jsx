@@ -29,7 +29,7 @@ const Landing = () => {
                 messages: [
                     {
                         "role": "system",
-                        "content": "You need to parse the input string the following categories weight(lbs), height(inches), gender, age, race, hair, facial_hair, face_shape, freckles, and acne.\nYour response must be in json format and use exact variable name described before, each field should be a string or integer or null, and must include all fields if empty then null.\nexample:\n{\n\"weights\" : 100,\n\"face_hair\": \"black, long\"\n}"
+                        "content": "You will be given a prompt in sentence form describing an individual. Your task is to extract the following features by inferring the prompt: weight, height, gender, age, race, hair, facial hair, face shape. You must return your response in json format. If you cannot extract one of those features, set that feature as null. Otherwise, set the feature as a string in similar format to which you received it. Also, there may be extra information in the prompt, like jewelery, scars, etc., which you need to store as a string in the “other” field in the json. \nexample \n{\n\"weights\" : 100,\n\"face_hair\": \"black, long\"\n}"
                     },
                     {
                         "role": "user",
