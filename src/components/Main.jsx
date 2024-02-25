@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 const Main = () => {
     const location = useLocation();
     const navigate = useNavigate();
+    const [isProcessing, setIsProcessing] = useState(false);
 
     const [weight, setWeight] = useState('');
     const [height, setHeight] = useState('');
@@ -15,23 +16,26 @@ const Main = () => {
     const [faceShape, setFaceShape] = useState('');
     const [customField, setCustomField] = useState('');
 
-    const [image, setImage] = useState('');
+    const [image, setImage] = useState('/images/icon.png');
 
     const generateImage = async (event) => {
         if (event) {
             event.preventDefault();
         }
 
+        setIsProcessing(true);
+
         // Creating prompt
-        let prompt = `photo of mugshot`
-        if (location.state.age) prompt += `, age: ${location.state.age}`;
-        if (location.state.gender) prompt += `, gender: ${location.state.gender}`;
-        if (location.state.race) prompt += `, race: ${location.state.race}`;
-        if (location.state.weight) prompt += `, weight: ${location.state.weight} lbs`;
-        if (location.state.height) prompt += `, height: ${location.state.height} inches tall`;
-        if (location.state.hair) prompt += `, hair: ${location.state.hair}`;
-        if (location.state.facialHair) prompt += `, facial hair: ${location.state.facialHair}`;
-        if (location.state.faceShape) prompt += `, face shape: ${location.state.faceShape}`;
+        let prompt = `photo of mugshot, only shoulders and above`
+        if (age) prompt += `, age: ${age}`;
+        if (gender) prompt += `, gender: ${gender}`;
+        if (race) prompt += `, race: ${race}`;
+        if (weight) prompt += `, weight: ${weight}`;
+        if (height) prompt += `, height: ${height}`;
+        if (hair) prompt += `, hair: ${hair}`;
+        if (facialHair) prompt += `, facial hair: ${facialHair}`;
+        if (faceShape) prompt += `, face shape: ${faceShape}`;
+        if (customField) prompt += `, ${customField}`;
 
         console.log('Prompt: ', prompt)
 
@@ -47,6 +51,8 @@ const Main = () => {
         const data = await response.json();
         setImage(data[0]);
         console.log('image set')
+
+        setIsProcessing(false);
     }
 
     useEffect(() => {
@@ -59,6 +65,7 @@ const Main = () => {
             setHair(location.state.hair || '');
             setFacialHair(location.state.facialHair || '');
             setFaceShape(location.state.faceShape || '');
+            setCustomField(location.state.other || '');
         }
 
         //generateImage();
@@ -70,16 +77,16 @@ const Main = () => {
                 <div className="w-1/2 bg-gray-800 p-8 rounded-lg mr-4 overflow-y-auto max-h-full shadow-xl">
                     <form className="space-y-6">
                         <h1 className="text-3xl font-bold text-white mb-4">Face Attributes Generator</h1> {/* Title */}
-                        <h2 className="text-lg text-gray-300 mb-8">Please fill in the following details:</h2> {/* Subtitle */}
+                        <h2 className="text-lg text-gray-300 mb-8">Please fill in at least one of the following details:</h2> {/* Subtitle */}
                         <div className="grid grid-cols-2 gap-8">
                             <div>
-                                <InputField label="Weight" value={weight} onChange={setWeight} />
-                                <InputField label="Height" value={height} onChange={setHeight} />
-                                <InputField label="Gender" value={gender} onChange={setGender} />
                                 <InputField label="Age" value={age} onChange={setAge} />
+                                <InputField label="Race" value={race} onChange={setRace} />
+                                <InputField label="Height" value={height} onChange={setHeight} />
+                                <InputField label="Weight" value={weight} onChange={setWeight} />
                             </div>
                             <div>
-                                <InputField label="Race" value={race} onChange={setRace} />
+                                <InputField label="Gender" value={gender} onChange={setGender} />
                                 <InputField label="Hair" value={hair} onChange={setHair} />
                                 <InputField label="Facial Hair" value={facialHair} onChange={setFacialHair} />
                                 <InputField label="Face Shape" value={faceShape} onChange={setFaceShape} />
@@ -89,7 +96,7 @@ const Main = () => {
                             <CustomInputField label="Custom Field" value={customField} onChange={setCustomField} />
                         </label>
                         <button type="submit" onClick={generateImage} className="bg-blue-700 hover:bg-blue-500 text-white font-bold py-3 px-6 rounded focus:outline-none focus:shadow-outline block mx-auto transition duration-300 ease-in-out">
-                            Submit
+                            {!isProcessing ? 'Generate Image' : 'Generating...'}
                         </button>
                         <div className="mt-8 text-center">
                             <button
@@ -104,9 +111,10 @@ const Main = () => {
                         </div>
                     </form>
                 </div>
-                <div className="w-1/2 bg-gray-800 p-8 rounded-lg opacity-90 shadow-lg">
-                    <img src={image ? image : '/images/pic.png'} alt="Selected" className="max-w-full h-auto rounded-lg" />
+                <div className="w-1/2 bg-gray-800 p-8 rounded-lg opacity-90 shadow-lg flex justify-center items-center">
+                    <img src={image} alt="Selected" className="max-w-full h-auto rounded-lg" />
                 </div>
+
             </div>
         </div>
     );
